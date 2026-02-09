@@ -85,7 +85,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <EmptySpace min="-2" pref="383" max="-2" attributes="0"/>
-                              <Component id="jLabel1" min="-2" pref="186" max="-2" attributes="0"/>
+                              <Component id="lblReportes" min="-2" pref="186" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -107,7 +107,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace pref="38" max="32767" attributes="0"/>
-                              <Component id="jLabel1" min="-2" pref="60" max="-2" attributes="0"/>
+                              <Component id="lblReportes" min="-2" pref="60" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -384,7 +384,7 @@
                         </Component>
                       </SubComponents>
                     </Container>
-                    <Component class="javax.swing.JLabel" name="jLabel1">
+                    <Component class="javax.swing.JLabel" name="lblReportes">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Segoe UI" size="24" style="0"/>
@@ -422,7 +422,7 @@
                               </Group>
                               <Group type="102" attributes="0">
                                   <EmptySpace min="-2" pref="93" max="-2" attributes="0"/>
-                                  <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
+                                  <Component id="lblBuscarReagendadosReportes" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                   <Component id="txtBuscarReagendadosReportes" min="-2" pref="182" max="-2" attributes="0"/>
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -434,7 +434,7 @@
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="366" max="-2" attributes="0"/>
-                          <Component id="jLabel13" min="-2" pref="271" max="-2" attributes="0"/>
+                          <Component id="lblReagendadosReportes" min="-2" pref="271" max="-2" attributes="0"/>
                           <EmptySpace pref="400" max="32767" attributes="0"/>
                       </Group>
                   </Group>
@@ -443,10 +443,10 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
+                          <Component id="lblReagendadosReportes" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblBuscarReagendadosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="txtBuscarReagendadosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="checkSoloReagendadosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -458,15 +458,12 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel12">
+                <Component class="javax.swing.JLabel" name="lblBuscarReagendadosReportes">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Buscar"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JTextField" name="txtBuscarReagendadosReportes">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Ingrese Busqueda"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="checkSoloReagendadosReportes">
                   <Properties>
@@ -515,7 +512,7 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JLabel" name="jLabel13">
+                <Component class="javax.swing.JLabel" name="lblReagendadosReportes">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Segoe UI" size="24" style="0"/>
@@ -540,7 +537,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <EmptySpace min="-2" pref="410" max="-2" attributes="0"/>
-                          <Component id="jLabel14" min="-2" pref="183" max="-2" attributes="0"/>
+                          <Component id="lblCancelacionesReportes" min="-2" pref="183" max="-2" attributes="0"/>
                           <EmptySpace pref="444" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
@@ -554,7 +551,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
-                          <Component id="jLabel14" min="-2" pref="42" max="-2" attributes="0"/>
+                          <Component id="lblCancelacionesReportes" min="-2" pref="42" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jScrollPane2" pref="612" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -563,7 +560,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel14">
+                <Component class="javax.swing.JLabel" name="lblCancelacionesReportes">
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Segoe UI" size="24" style="0"/>
@@ -579,7 +576,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JTable" name="jTable1">
+                    <Component class="javax.swing.JTable" name="tblCancelacionesReportes">
                       <Properties>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                           <Table columnCount="2" rowCount="4">
@@ -634,23 +631,23 @@
                                           <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
                                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                               <Group type="102" attributes="0">
-                                                  <Component id="jLabel15" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="lblDesdeIngresosReportes" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
-                                                  <Component id="spnDesdeReportes" pref="303" max="32767" attributes="0"/>
+                                                  <Component id="spnDesdeIngresosReportes" pref="303" max="32767" attributes="0"/>
                                               </Group>
                                               <Component id="btnCalcularIngresosReportes" max="32767" attributes="0"/>
                                           </Group>
                                           <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                                           <Group type="103" groupAlignment="0" attributes="0">
                                               <Group type="102" attributes="0">
-                                                  <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="lblIngresoTotalIngresosReportes" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
                                                   <Component id="jLabel20" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
                                                   <Component id="lblIngresoTotalReportes" min="-2" pref="81" max="-2" attributes="0"/>
                                               </Group>
                                               <Group type="102" attributes="0">
-                                                  <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="lblHastaIngresosReportes" min="-2" max="-2" attributes="0"/>
                                                   <EmptySpace max="-2" attributes="0"/>
                                                   <Component id="spnHastaReportes" min="-2" pref="358" max="-2" attributes="0"/>
                                               </Group>
@@ -666,21 +663,28 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace min="-2" pref="384" max="-2" attributes="0"/>
+                          <Component id="jLabel1" min="-2" pref="218" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                      </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace min="-2" pref="83" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jLabel1" min="-2" pref="32" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel15" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="spnDesdeReportes" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel16" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblDesdeIngresosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="spnDesdeIngresosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblHastaIngresosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="spnHastaReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="jLabel17" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblIngresoTotalIngresosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="btnCalcularIngresosReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="lblIngresoTotalReportes" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel20" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -695,19 +699,19 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel15">
+                <Component class="javax.swing.JLabel" name="lblDesdeIngresosReportes">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Desde"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JSpinner" name="spnDesdeReportes">
+                <Component class="javax.swing.JSpinner" name="spnDesdeIngresosReportes">
                   <Properties>
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                       <SpinnerModel initial="now" stepSize="5" type="date"/>
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel16">
+                <Component class="javax.swing.JLabel" name="lblHastaIngresosReportes">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Hasta"/>
                   </Properties>
@@ -719,7 +723,7 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel17">
+                <Component class="javax.swing.JLabel" name="lblIngresoTotalIngresosReportes">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Ingreso Total:"/>
                   </Properties>
@@ -741,7 +745,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JTable" name="jTable2">
+                    <Component class="javax.swing.JTable" name="tblIngresosReportes">
                       <Properties>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                           <Table columnCount="6" rowCount="4">
@@ -802,6 +806,15 @@
                 <Component class="javax.swing.JLabel" name="jLabel20">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="S/."/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabel1">
+                  <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Segoe UI" size="24" style="0"/>
+                    </Property>
+                    <Property name="horizontalAlignment" type="int" value="0"/>
+                    <Property name="text" type="java.lang.String" value="Ingresos"/>
                   </Properties>
                 </Component>
               </SubComponents>

@@ -1,24 +1,230 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package proyectofinal.igu;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableModel;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Map;
+
 
 public class Reportes extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Reportes.class.getName());
+    private DefaultTableModel modeloReagendados;
+    private DefaultTableModel modeloCancelaciones;
+    private DefaultTableModel modeloIngresos;
+
+    private final DateTimeFormatter fmtFechaHora = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+
 
     private proyectofinal.AppContext ctx;
 
     public Reportes() {
         initComponents();
         setLocationRelativeTo(null);
+
+        configurarTablas();
+        configurarSpinners();
+        configurarEventos();
 }
 
-    public Reportes(proyectofinal.AppContext ctx) {
-        this();          
-        this.ctx = ctx;  
+public Reportes(proyectofinal.AppContext ctx) {
+        this();
+        this.ctx = ctx;
+
+    // carga inicial
+        refrescarTodo();
 }
+
+    private void configurarTablas() {
+
+    modeloReagendados = new DefaultTableModel(
+            new Object[]{"Ticket ID", "Cliente", "Reagendamientos"}, 0
+    ) {
+        @Override public boolean isCellEditable(int r, int c) { return false; }
+    };
+    tblReagendadosReportes.setModel(modeloReagendados);
+
+    modeloCancelaciones = new DefaultTableModel(
+            new Object[]{"Motivo", "Cantidad"}, 0
+    ) {
+        @Override public boolean isCellEditable(int r, int c) { return false; }
+    };
+    tblCancelacionesReportes.setModel(modeloCancelaciones);
+
+    modeloIngresos = new DefaultTableModel(
+            new Object[]{"Fecha", "Ticket ID", "Cliente", "Ingreso", "Tecnicos", "Resultado"}, 0
+    ) {
+        @Override public boolean isCellEditable(int r, int c) { return false; }
+    };
+    tblIngresosReportes.setModel(modeloIngresos);
+}
+
+private void configurarSpinners() {
+    // Si quieres que por defecto aparezca algo normal:
+    spnDesdeIngresosReportes.setModel(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
+    spnHastaReportes.setModel(new SpinnerDateModel(new Date(), null, null, java.util.Calendar.DAY_OF_MONTH));
+
+    // Editor más “humano” (sin segundos)
+    spnDesdeIngresosReportes.setEditor(new JSpinner.DateEditor(spnDesdeIngresosReportes, "dd/MM/yyyy HH:mm"));
+    spnHastaReportes.setEditor(new JSpinner.DateEditor(spnHastaReportes, "dd/MM/yyyy HH:mm"));
+}
+
+private void configurarEventos() {
+
+    btnMenuReportes.addActionListener(e -> {
+        new VentanaPrincipal(ctx).setVisible(true);
+        dispose();
+    });
+
+    // Reagendados: filtro por texto + checkbox
+    txtBuscarReagendadosReportes.getDocument().addDocumentListener(new DocumentListener() {
+        public void insertUpdate(DocumentEvent e) { aplicarFiltroReagendados(); }
+        public void removeUpdate(DocumentEvent e) { aplicarFiltroReagendados(); }
+        public void changedUpdate(DocumentEvent e) { aplicarFiltroReagendados(); }
+    });
+
+    checkSoloReagendadosReportes.addActionListener(e -> aplicarFiltroReagendados());
+
+    // Ingresos: botón calcular
+    btnCalcularIngresosReportes.addActionListener(e -> calcularIngresos());
+}
+
+private void refrescarTodo() {
+    if (ctx == null) return;
+    cargarTotales();
+    cargarReagendados();
+    cargarCancelaciones();
+    calcularIngresos(); // opcional: para que no quede en blanco
+}
+
+/* =======================
+   TAB 1: TOTALES
+   ======================= */
+private void cargarTotales() {
+    var tickets = ctx.ticketService.listarTickets();
+
+    long totalTickets = ctx.reporteService.totalTickets(tickets);
+    long totalVisitas = ctx.reporteService.totalVisitas(tickets);
+
+    long abiertos = ctx.reporteService.contarPorEstado(tickets, proyectofinal.EstadoTicket.ABIERTO);
+    long enProceso = ctx.reporteService.contarPorEstado(tickets, proyectofinal.EstadoTicket.EN_PROCESO);
+    long cerrados = ctx.reporteService.contarPorEstado(tickets, proyectofinal.EstadoTicket.CERRADO);
+
+    lblTotalTicketsReportes.setText(String.valueOf(totalTickets));
+    lblTotalVisitasReportes.setText(String.valueOf(totalVisitas));
+    lblTicketsAbiertoReportes.setText(String.valueOf(abiertos));
+    lblEnProcesoReportes.setText(String.valueOf(enProceso));
+    lblCerradosReportes.setText(String.valueOf(cerrados));
+}
+
+/* =======================
+   TAB 2: REAGENDADOS
+   ======================= */
+private void cargarReagendados() {
+    if (ctx == null) return;
+
+    modeloReagendados.setRowCount(0);
+
+    var tickets = ctx.ticketService.listarTickets();
+    Map<String, Long> conteo = ctx.reporteService.ticketsReagendadosConteo(tickets);
+
+    for (var t : tickets) {
+        long c = conteo.getOrDefault(t.getId(), 0L);
+        modeloReagendados.addRow(new Object[]{ t.getId(), t.getCliente().getNombre(), c });
+    }
+
+    aplicarFiltroReagendados();
+}
+
+private void aplicarFiltroReagendados() {
+    if (modeloReagendados == null) return;
+
+    String q = txtBuscarReagendadosReportes.getText() == null ? "" : txtBuscarReagendadosReportes.getText().trim().toLowerCase();
+    boolean soloMayor0 = checkSoloReagendadosReportes.isSelected();
+
+    // Re-cargar desde fuente real para aplicar filtro limpio:
+    modeloReagendados.setRowCount(0);
+
+    var tickets = ctx.ticketService.listarTickets();
+    Map<String, Long> conteo = ctx.reporteService.ticketsReagendadosConteo(tickets);
+
+    for (var t : tickets) {
+        String id = t.getId();
+        String cliente = t.getCliente().getNombre();
+        long c = conteo.getOrDefault(id, 0L);
+
+        if (soloMayor0 && c <= 0) continue;
+
+        String haystack = (id + " " + cliente).toLowerCase();
+        if (!q.isEmpty() && !haystack.contains(q)) continue;
+
+        modeloReagendados.addRow(new Object[]{ id, cliente, c });
+    }
+}
+
+/* =======================
+   TAB 3: CANCELACIONES
+   ======================= */
+private void cargarCancelaciones() {
+    if (ctx == null) return;
+
+    modeloCancelaciones.setRowCount(0);
+
+    var tickets = ctx.ticketService.listarTickets();
+    Map<String, Long> map = ctx.reporteService.cancelacionesPorMotivo(tickets);
+
+    // ordena por cantidad desc (bonito)
+    map.entrySet().stream()
+            .sorted((a,b) -> Long.compare(b.getValue(), a.getValue()))
+            .forEach(e -> modeloCancelaciones.addRow(new Object[]{ e.getKey(), e.getValue() }));
+}
+
+/* =======================
+   TAB 4: INGRESOS
+   ======================= */
+private void calcularIngresos() {
+    if (ctx == null) return;
+
+    LocalDate desde = leerFechaSpinnerComoLocalDate(spnDesdeIngresosReportes);
+    LocalDate hasta = leerFechaSpinnerComoLocalDate(spnHastaReportes);
+
+    if (desde.isAfter(hasta)) {
+        JOptionPane.showMessageDialog(this, "Rango inválido: 'Desde' no puede ser mayor que 'Hasta'.");
+        return;
+    }
+
+    var tickets = ctx.ticketService.listarTickets();
+
+    double total = ctx.reporteService.ingresosEnRango(tickets, desde, hasta);
+    lblIngresoTotalReportes.setText(String.format(java.util.Locale.US, "%.2f", total));
+
+    // tabla detalle
+    modeloIngresos.setRowCount(0);
+    var filas = ctx.reporteService.detalleIngresosEnRango(tickets, desde, hasta);
+
+    for (Object[] row : filas) {
+        // row[0] es LocalDateTime (según el método)
+        LocalDateTime f = (LocalDateTime) row[0];
+        row[0] = (f == null) ? "" : f.format(fmtFechaHora);
+        modeloIngresos.addRow(row);
+    }
+
+    lblFilasIngresosReportes.setText("Filas: " + filas.size());
+}
+
+private LocalDate leerFechaSpinnerComoLocalDate(JSpinner spn) {
+    Date d = (Date) spn.getValue();
+    return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+}
+
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -42,31 +248,32 @@ public class Reportes extends javax.swing.JFrame {
         jPanel8 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         lblTotalVisitasReportes = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lblReportes = new javax.swing.JLabel();
         btnMenuReportes = new javax.swing.JButton();
         jPanel9 = new javax.swing.JPanel();
-        jLabel12 = new javax.swing.JLabel();
+        lblBuscarReagendadosReportes = new javax.swing.JLabel();
         txtBuscarReagendadosReportes = new javax.swing.JTextField();
         checkSoloReagendadosReportes = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblReagendadosReportes = new javax.swing.JTable();
-        jLabel13 = new javax.swing.JLabel();
+        lblReagendadosReportes = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
-        jLabel14 = new javax.swing.JLabel();
+        lblCancelacionesReportes = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblCancelacionesReportes = new javax.swing.JTable();
         jPanel11 = new javax.swing.JPanel();
-        jLabel15 = new javax.swing.JLabel();
-        spnDesdeReportes = new javax.swing.JSpinner();
-        jLabel16 = new javax.swing.JLabel();
+        lblDesdeIngresosReportes = new javax.swing.JLabel();
+        spnDesdeIngresosReportes = new javax.swing.JSpinner();
+        lblHastaIngresosReportes = new javax.swing.JLabel();
         spnHastaReportes = new javax.swing.JSpinner();
-        jLabel17 = new javax.swing.JLabel();
+        lblIngresoTotalIngresosReportes = new javax.swing.JLabel();
         btnCalcularIngresosReportes = new javax.swing.JButton();
         lblIngresoTotalReportes = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
+        tblIngresosReportes = new javax.swing.JTable();
         lblFilasIngresosReportes = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -217,9 +424,9 @@ public class Reportes extends javax.swing.JFrame {
                 .addGap(21, 21, 21))
         );
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Reportes");
+        lblReportes.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblReportes.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblReportes.setText("Reportes");
 
         btnMenuReportes.setText("Menu");
 
@@ -229,7 +436,7 @@ public class Reportes extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(383, 383, 383)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(367, 367, 367)
@@ -247,7 +454,7 @@ public class Reportes extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap(38, Short.MAX_VALUE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -279,9 +486,7 @@ public class Reportes extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Totales", jPanel2);
 
-        jLabel12.setText("Buscar");
-
-        txtBuscarReagendadosReportes.setText("Ingrese Busqueda");
+        lblBuscarReagendadosReportes.setText("Buscar");
 
         checkSoloReagendadosReportes.setText("Solo > 0");
 
@@ -298,9 +503,9 @@ public class Reportes extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(tblReagendadosReportes);
 
-        jLabel13.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel13.setText("Reagendados");
+        lblReagendadosReportes.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblReagendadosReportes.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblReagendadosReportes.setText("Reagendados");
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
@@ -313,7 +518,7 @@ public class Reportes extends javax.swing.JFrame {
                         .addComponent(jScrollPane1))
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addGap(93, 93, 93)
-                        .addComponent(jLabel12)
+                        .addComponent(lblBuscarReagendadosReportes)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtBuscarReagendadosReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -322,17 +527,17 @@ public class Reportes extends javax.swing.JFrame {
                 .addContainerGap())
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGap(366, 366, 366)
-                .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblReagendadosReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(400, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel13)
+                .addComponent(lblReagendadosReportes)
                 .addGap(50, 50, 50)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel12)
+                    .addComponent(lblBuscarReagendadosReportes)
                     .addComponent(txtBuscarReagendadosReportes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(checkSoloReagendadosReportes))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -342,11 +547,11 @@ public class Reportes extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Reagendados", jPanel9);
 
-        jLabel14.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel14.setText("Cancelaciones");
+        lblCancelacionesReportes.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblCancelacionesReportes.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCancelacionesReportes.setText("Cancelaciones");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblCancelacionesReportes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null},
                 {null, null},
@@ -357,7 +562,7 @@ public class Reportes extends javax.swing.JFrame {
                 "Motivo", "Cantidad"
             }
         ));
-        jScrollPane2.setViewportView(jTable1);
+        jScrollPane2.setViewportView(tblCancelacionesReportes);
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -365,7 +570,7 @@ public class Reportes extends javax.swing.JFrame {
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addGap(410, 410, 410)
-                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblCancelacionesReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(444, Short.MAX_VALUE))
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addContainerGap()
@@ -376,7 +581,7 @@ public class Reportes extends javax.swing.JFrame {
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addGap(22, 22, 22)
-                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lblCancelacionesReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
                 .addContainerGap())
@@ -384,21 +589,21 @@ public class Reportes extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Cancelaciones", jPanel10);
 
-        jLabel15.setText("Desde");
+        lblDesdeIngresosReportes.setText("Desde");
 
-        spnDesdeReportes.setModel(new javax.swing.SpinnerDateModel());
+        spnDesdeIngresosReportes.setModel(new javax.swing.SpinnerDateModel());
 
-        jLabel16.setText("Hasta");
+        lblHastaIngresosReportes.setText("Hasta");
 
         spnHastaReportes.setModel(new javax.swing.SpinnerDateModel());
 
-        jLabel17.setText("Ingreso Total:");
+        lblIngresoTotalIngresosReportes.setText("Ingreso Total:");
 
         btnCalcularIngresosReportes.setText("Calcular");
 
         lblIngresoTotalReportes.setText("0.00");
 
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tblIngresosReportes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -409,11 +614,15 @@ public class Reportes extends javax.swing.JFrame {
                 "Fecha", "Ticket ID", "Cliente", "Ingreso", "Tecnicos", "Resultado"
             }
         ));
-        jScrollPane3.setViewportView(jTable2);
+        jScrollPane3.setViewportView(tblIngresosReportes);
 
         lblFilasIngresosReportes.setText("Filas: 0");
 
         jLabel20.setText("S/.");
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Ingresos");
 
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
@@ -430,20 +639,20 @@ public class Reportes extends javax.swing.JFrame {
                                 .addGap(42, 42, 42)
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addComponent(jLabel15)
+                                        .addComponent(lblDesdeIngresosReportes)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(spnDesdeReportes, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
+                                        .addComponent(spnDesdeIngresosReportes, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
                                     .addComponent(btnCalcularIngresosReportes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addGap(30, 30, 30)
                                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addComponent(jLabel17)
+                                        .addComponent(lblIngresoTotalIngresosReportes)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(jLabel20)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(lblIngresoTotalReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
                                     .addGroup(jPanel11Layout.createSequentialGroup()
-                                        .addComponent(jLabel16)
+                                        .addComponent(lblHastaIngresosReportes)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(spnHastaReportes, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE))))
                             .addGroup(jPanel11Layout.createSequentialGroup()
@@ -451,19 +660,25 @@ public class Reportes extends javax.swing.JFrame {
                                 .addComponent(lblFilasIngresosReportes)))
                         .addGap(0, 224, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addGap(384, 384, 384)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel11Layout.createSequentialGroup()
-                .addGap(83, 83, 83)
+                .addContainerGap()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel15)
-                    .addComponent(spnDesdeReportes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel16)
+                    .addComponent(lblDesdeIngresosReportes)
+                    .addComponent(spnDesdeIngresosReportes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblHastaIngresosReportes)
                     .addComponent(spnHastaReportes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(29, 29, 29)
                 .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel17)
+                    .addComponent(lblIngresoTotalIngresosReportes)
                     .addComponent(btnCalcularIngresosReportes)
                     .addComponent(lblIngresoTotalReportes)
                     .addComponent(jLabel20))
@@ -532,12 +747,6 @@ public class Reportes extends javax.swing.JFrame {
     private javax.swing.JCheckBox checkSoloReagendadosReportes;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel4;
@@ -558,17 +767,24 @@ public class Reportes extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTable jTable2;
+    private javax.swing.JLabel lblBuscarReagendadosReportes;
+    private javax.swing.JLabel lblCancelacionesReportes;
     private javax.swing.JLabel lblCerradosReportes;
+    private javax.swing.JLabel lblDesdeIngresosReportes;
     private javax.swing.JLabel lblEnProcesoReportes;
     private javax.swing.JLabel lblFilasIngresosReportes;
+    private javax.swing.JLabel lblHastaIngresosReportes;
+    private javax.swing.JLabel lblIngresoTotalIngresosReportes;
     private javax.swing.JLabel lblIngresoTotalReportes;
+    private javax.swing.JLabel lblReagendadosReportes;
+    private javax.swing.JLabel lblReportes;
     private javax.swing.JLabel lblTicketsAbiertoReportes;
     private javax.swing.JLabel lblTotalTicketsReportes;
     private javax.swing.JLabel lblTotalVisitasReportes;
-    private javax.swing.JSpinner spnDesdeReportes;
+    private javax.swing.JSpinner spnDesdeIngresosReportes;
     private javax.swing.JSpinner spnHastaReportes;
+    private javax.swing.JTable tblCancelacionesReportes;
+    private javax.swing.JTable tblIngresosReportes;
     private javax.swing.JTable tblReagendadosReportes;
     private javax.swing.JTextField txtBuscarReagendadosReportes;
     // End of variables declaration//GEN-END:variables

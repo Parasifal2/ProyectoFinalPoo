@@ -3,7 +3,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
-
+import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -12,11 +12,11 @@ import java.util.Date;
 
 public class Visitas extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Visitas.class.getName());
-
+ private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Visitas.class.getName());
+ private final DateTimeFormatter fmtFechaHora = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
  private proyectofinal.AppContext ctx;
-private String ticketIdSeleccionado = null;
-private String visitaIdSeleccionada = null;
+ private String ticketIdSeleccionado = null;
+ private String visitaIdSeleccionada = null;
 
 private DefaultTableModel modeloVisitas;
 private DefaultListModel<String> modeloTecnicosAsignados = new DefaultListModel<>();
@@ -24,7 +24,7 @@ private DefaultListModel<String> modeloTecnicosAsignados = new DefaultListModel<
 public Visitas() {
     initComponents();
     setLocationRelativeTo(null);
-
+    spnFechaVisitas.setEditor(new javax.swing.JSpinner.DateEditor(spnFechaVisitas, "dd MMM yyyy, HH:mm"));
     configurarTabla();
     configurarListaTecnicosAsignados();
     configurarEventos();
@@ -182,7 +182,7 @@ private void cargarTablaVisitasDeTicket(proyectofinal.Ticket t) {
 
         modeloVisitas.addRow(new Object[]{
                 v.getId(),
-                String.valueOf(v.getFechaProgramada()),
+                (v.getFechaProgramada() == null ? "" : v.getFechaProgramada().format(fmtFechaHora)),
                 v.getEstado().name(),
                 tecnicosStr,
                 v.getIngresoGenerado()

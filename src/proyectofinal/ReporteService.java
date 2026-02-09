@@ -50,4 +50,46 @@ public class ReporteService {
                 .mapToDouble(VisitaTecnica::getIngresoGenerado)
                 .sum();
     }
+    
+    public long contarPorEstado(List<Ticket> tickets, EstadoTicket estado) {
+    return tickets.stream().filter(t -> t.getEstado() == estado).count();
+}
+
+/**
+ * Devuelve filas para la tabla de ingresos:
+ * Fecha | TicketId | Cliente | Ingreso | Tecnicos | Resultado
+ */
+    public List<Object[]> detalleIngresosEnRango(List<Ticket> tickets, LocalDate desde, LocalDate hasta) {
+     return tickets.stream()
+            .flatMap(t -> t.getVisitas().stream().map(v -> new Object[]{t, v}))
+            .filter(arr -> ((VisitaTecnica) arr[1]).getEstado() == EstadoVisita.COMPLETADA)
+            .filter(arr -> {
+                VisitaTecnica v = (VisitaTecnica) arr[1];
+                LocalDate f = v.getFechaProgramada().toLocalDate();
+                return !f.isBefore(desde) && !f.isAfter(hasta);
+            })
+            .map(arr -> {
+                Ticket t = (Ticket) arr[0];
+                VisitaTecnica v = (VisitaTecnica) arr[1];
+
+                String tecnicos = v.getTecnicosAsignados().isEmpty()
+                        ? ""
+                        : v.getTecnicosAsignados().stream()
+                            .map(Tecnico::getNombre)
+                            .collect(java.util.stream.Collectors.joining(", "));
+
+                return new Object[]{
+                        v.getFechaProgramada(),     // luego lo formateas en la UI
+                        t.getId(),
+                        t.getCliente().getNombre(),
+                        v.getIngresoGenerado(),
+                        tecnicos,
+                        v.getResultado() == null ? "" : v.getResultado()
+                };
+            })
+            .collect(java.util.stream.Collectors.toList());
+}
+
+    
+    
 }
