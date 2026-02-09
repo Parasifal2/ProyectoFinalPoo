@@ -5,20 +5,18 @@ import javax.swing.table.DefaultTableModel;
 
 public class Clientes extends javax.swing.JFrame {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Clientes.class.getName());
-
-    
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Clientes.class.getName());    
     private proyectofinal.AppContext ctx;
     private DefaultTableModel modeloClientes;
     private String idSeleccionado = null;
 
+//Constructores
         public Clientes() {
         initComponents();
         setLocationRelativeTo(null);
-
         configurarTabla();
         configurarEventos();
-        cargarTablaClientes(); // ctx null => tabla vacía, normal
+        cargarTablaClientes(); 
     }
 
     public Clientes(proyectofinal.AppContext ctx) {
@@ -31,7 +29,8 @@ public class Clientes extends javax.swing.JFrame {
         configurarEventos();
         cargarTablaClientes(); // ahora sí carga clientes
     }
-    
+ 
+    //COnfigurar nuestra tabla 
     private void configurarTabla() {
          modeloClientes = new DefaultTableModel(
          new Object[]{"ID", "Nombre", "Telefono", "Email"}, 0
@@ -43,7 +42,7 @@ public class Clientes extends javax.swing.JFrame {
     };
     tblClientes.setModel(modeloClientes);
 }
-
+    //Cargar la tabla de clientes que tenemos ya lista en modo semilla Y Tambien los que vayamos creando por el camino
     private void cargarTablaClientes() {
         if (modeloClientes == null) return;
 
@@ -60,7 +59,7 @@ public class Clientes extends javax.swing.JFrame {
         });
     }
 }
-
+    //Tabla para que una vez que agreguemos el formulario de borre
     private void limpiarFormulario() {
         idSeleccionado = null;
         txtNombreClientes.setText("");
@@ -69,7 +68,7 @@ public class Clientes extends javax.swing.JFrame {
         tblClientes.clearSelection();
         txtNombreClientes.requestFocus();
 }
-
+    //Aqui se utiliza clases anonimas
     private proyectofinal.Cliente buscarClientePorId(String id) {
         if (ctx == null || ctx.clientes == null) return null;
         for (proyectofinal.Cliente c : ctx.clientes) {
@@ -308,7 +307,7 @@ public class Clientes extends javax.swing.JFrame {
 
     cargarTablaClientes();
     limpiarFormulario();
-    JOptionPane.showMessageDialog(this, "Cliente guardado.");
+    JOptionPane.showMessageDialog(this, "Cliente guardado."); //Una interfaz locasa de popup para confirmar los cambios :v
     }//GEN-LAST:event_btnGuardarClientesActionPerformed
 
     private void btnActualizarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarClientesActionPerformed
