@@ -93,7 +93,7 @@ public VentanaPrincipal(proyectofinal.AppContext ctx) {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel1.setText("Reportes Elevation Solar");
 
-        jLabel2.setIcon(new javax.swing.ImageIcon("C:\\Users\\Elevation Solar\\Downloads\\elevation 2.png")); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/elevation 2.png"))); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
