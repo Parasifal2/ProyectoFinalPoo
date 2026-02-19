@@ -207,37 +207,49 @@ private void crearTicket() {
 }
 
 private void actualizarTicket() {
-    if (ctx == null) return;
+     if (ctx == null) return;
 
     if (ticketIdSeleccionado == null) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un ticket de la tabla primero.");
+        JOptionPane.showMessageDialog(this, "Seleccione un ticket de la tabla primero.");
         return;
     }
-
-    var opt = ctx.ticketService.buscarTicketPorId(ticketIdSeleccionado);
-    if (opt.isEmpty()) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Ticket no encontrado.");
-        return;
-    }
-
-    var t = opt.get();
 
     String tipoProblema = String.valueOf(cboProblemaTickets.getSelectedItem());
     String descripcion = txtDescripcionTickets.getText().trim();
 
     if (descripcion.isBlank()) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Ingrese una descripción.");
+        JOptionPane.showMessageDialog(this, "Ingrese una descripción.");
         return;
     }
 
-    // Actualización segura según tu modelo
-    t.actualizarDatos(tipoProblema, descripcion, "Sistema");
+    String dir = txtDireccionTickets.getText().trim();
+    String ciu = txtCiudadTickets.getText().trim();
+    String ref = txtReferenciaTickets.getText().trim();
 
-    javax.swing.JOptionPane.showMessageDialog(this, "Ticket actualizado.");
-    cargarTablaTickets();
-    t.getDomicilio().setDireccion(txtDireccionTickets.getText().trim());
-    t.getDomicilio().setCiudad(txtCiudadTickets.getText().trim());
-    t.getDomicilio().setReferencia(txtReferenciaTickets.getText().trim());
+    if (dir.isBlank() || ciu.isBlank()) {
+        JOptionPane.showMessageDialog(this, "Ingrese dirección y ciudad.");
+        return;
+    }
+
+    try {
+        ctx.ticketService.actualizarTicket(
+                ticketIdSeleccionado,
+                tipoProblema,
+                descripcion,
+                dir,
+                ciu,
+                ref,
+                "Sistema"
+        );
+
+        JOptionPane.showMessageDialog(this, "Ticket actualizado (BD).");
+        cargarTablaTickets();
+        limpiarFormulario();
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        ex.printStackTrace();
+    }
 
 }
 

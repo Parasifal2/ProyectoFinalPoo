@@ -35,4 +35,13 @@ public class Domicilio {
     public String toString() {
         return "Domicilio{id=" + id + ", " + direccion + ", " + ciudad + "}";
     }
+    
+    public Domicilio(String id, String direccion, String ciudad, String referencia) {
+    this.id = id;
+    this.direccion = direccion;
+    this.ciudad = ciudad;
+    this.referencia = referencia;
+}
+
+
 }

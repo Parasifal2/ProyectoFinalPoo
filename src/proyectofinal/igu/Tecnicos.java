@@ -28,11 +28,15 @@ public Tecnicos(proyectofinal.AppContext ctx) {
 
     this.ctx = ctx;
 
+    refrescarTecnicosDesdeBD();
+    cargarTablaTecnicos();
     configurarTabla();
     configurarEventos();
     cargarTablaTecnicos();
     limpiarFormulario();
 }
+
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -285,8 +289,8 @@ public Tecnicos(proyectofinal.AppContext ctx) {
 
     private void btnGuardarTecnicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarTecnicosActionPerformed
         // TODO add your handling code here:
-        if (ctx == null) {
-        JOptionPane.showMessageDialog(this, "CTX no inicializado. Abra desde el menú principal.");
+          if (ctx == null || ctx.personaRepo == null) {
+        JOptionPane.showMessageDialog(this, "CTX/Repo no inicializado.");
         return;
     }
 
@@ -295,27 +299,28 @@ public Tecnicos(proyectofinal.AppContext ctx) {
     String email = txtEmailTecnicos.getText().trim();
     String esp = especialidadSeleccionada();
 
-    if (nombre.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Nombre no puede estar vacío.");
-        return;
-    }
-    if (esp.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Seleccione una especialidad.");
-        return;
-    }
+    if (nombre.isEmpty()) { JOptionPane.showMessageDialog(this, "Nombre no puede estar vacío."); return; }
+    if (esp.isEmpty()) { JOptionPane.showMessageDialog(this, "Seleccione una especialidad."); return; }
 
-    proyectofinal.Tecnico t = new proyectofinal.Tecnico(nombre, tel, email, esp);
-    ctx.tecnicos.add(t);
+    try {
+        proyectofinal.Tecnico t = new proyectofinal.Tecnico(nombre, tel, email, esp);
+        ctx.personaRepo.upsertTecnico(t);
 
-    cargarTablaTecnicos();
-    limpiarFormulario();
-    JOptionPane.showMessageDialog(this, "Tecnico guardado.");
+        refrescarTecnicosDesdeBD();
+        cargarTablaTecnicos();
+        limpiarFormulario();
+
+        JOptionPane.showMessageDialog(this, "Técnico guardado en la base de datos.");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        ex.printStackTrace();
+    }
     }//GEN-LAST:event_btnGuardarTecnicosActionPerformed
 
     private void btnActualizarTecnicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarTecnicosActionPerformed
         // TODO add your handling code here:
-        if (ctx == null) {
-        JOptionPane.showMessageDialog(this, "CTX no inicializado. Abra desde el menú principal.");
+          if (ctx == null || ctx.personaRepo == null) {
+        JOptionPane.showMessageDialog(this, "CTX/Repo no inicializado.");
         return;
     }
 
@@ -325,32 +330,33 @@ public Tecnicos(proyectofinal.AppContext ctx) {
     }
 
     proyectofinal.Tecnico t = buscarTecnicoPorId(idSeleccionado);
-    if (t == null) {
-        JOptionPane.showMessageDialog(this, "Técnico no encontrado.");
-        return;
-    }
+    if (t == null) { JOptionPane.showMessageDialog(this, "Técnico no encontrado."); return; }
 
     String nombre = txtNombreTecnicos.getText().trim();
     String tel = txtTelefonoTecnicos.getText().trim();
     String email = txtEmailTecnicos.getText().trim();
     String esp = especialidadSeleccionada();
 
-    if (nombre.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Nombre no puede estar vacío.");
-        return;
-    }
-    if (esp.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Seleccione una especialidad.");
-        return;
-    }
+    if (nombre.isEmpty()) { JOptionPane.showMessageDialog(this, "Nombre no puede estar vacío."); return; }
+    if (esp.isEmpty()) { JOptionPane.showMessageDialog(this, "Seleccione una especialidad."); return; }
 
-    t.setNombre(nombre);
-    t.setTelefono(tel);
-    t.setEmail(email);
-    t.setEspecialidad(esp);
+    try {
+        t.setNombre(nombre);
+        t.setTelefono(tel);
+        t.setEmail(email);
+        t.setEspecialidad(esp);
 
-    cargarTablaTecnicos();
-    JOptionPane.showMessageDialog(this, "Tecnico actualizado.");
+        ctx.personaRepo.upsertTecnico(t);
+
+        refrescarTecnicosDesdeBD();
+        cargarTablaTecnicos();
+        limpiarFormulario();
+
+        JOptionPane.showMessageDialog(this, "Técnico actualizado en BD.");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        ex.printStackTrace();
+    }
     }//GEN-LAST:event_btnActualizarTecnicosActionPerformed
 
     private void btnLimpiarTecnicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarTecnicosActionPerformed
@@ -361,8 +367,8 @@ public Tecnicos(proyectofinal.AppContext ctx) {
 
     private void btnEliminarTecnicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarTecnicosActionPerformed
         // TODO add your handling code here:
-            if (ctx == null) {
-        JOptionPane.showMessageDialog(this, "CTX no inicializado. Abra desde el menú principal.");
+            if (ctx == null || ctx.personaRepo == null) {
+        JOptionPane.showMessageDialog(this, "CTX/Repo no inicializado.");
         return;
     }
 
@@ -372,17 +378,24 @@ public Tecnicos(proyectofinal.AppContext ctx) {
     }
 
     int ok = JOptionPane.showConfirmDialog(this,
-            "¿Eliminar técnico seleccionado?",
+            "¿Eliminar técnico seleccionado? (se desactivará)",
             "Confirmar",
             JOptionPane.YES_NO_OPTION);
 
     if (ok != JOptionPane.YES_OPTION) return;
 
-    ctx.tecnicos.removeIf(t -> t.getId().equals(idSeleccionado));
+    try {
+        ctx.personaRepo.desactivarPersona(idSeleccionado);
 
-    cargarTablaTecnicos();
-    limpiarFormulario();
-    JOptionPane.showMessageDialog(this, "Tecnico eliminado.");
+        refrescarTecnicosDesdeBD();
+        cargarTablaTecnicos();
+        limpiarFormulario();
+
+        JOptionPane.showMessageDialog(this, "Técnico eliminado (desactivado).");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+        ex.printStackTrace();
+    }
     }//GEN-LAST:event_btnEliminarTecnicosActionPerformed
 
     private void btnMenuTecnicosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenuTecnicosActionPerformed
@@ -447,6 +460,13 @@ private String especialidadSeleccionada() {
     if (esp.equalsIgnoreCase("Seleccione...")) return "";
     return esp;
 }
+
+private void refrescarTecnicosDesdeBD() {
+    if (ctx == null || ctx.personaRepo == null) return;
+    ctx.tecnicos.clear();
+    ctx.tecnicos.addAll(ctx.personaRepo.listarTecnicos());
+}
+
 
 private void configurarEventos() {
     tblTecnicos.getSelectionModel().addListSelectionListener(e -> {

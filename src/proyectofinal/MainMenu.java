@@ -47,11 +47,11 @@ public class MainMenu {
                     case 9 -> completarVisita();
                     case 10 -> cerrarTicket();
                     case 11 -> menuReportes();
-                    case 0 -> System.out.println("Saliendo... ✅");
+                    case 0 -> System.out.println("Saliendo... ");
                     default -> System.out.println("Opción invalida.");
                 }
             } catch (Exception e) {
-                System.out.println("⚠ Error: " + e.getMessage());
+                System.out.println("No ha seleccionado una opcion correcta, mensaje de error: " + e.getMessage());
             }
 
             System.out.println();
@@ -76,14 +76,14 @@ public class MainMenu {
         System.out.println("0) Salir");
     }
 
-    // ----------- REGISTROS -----------
+    // REGISTROS
 
     private static void registrarCliente() {
         String nombre = leerTexto("Nombre cliente: ");
         String telefono = leerTexto("Telefono: ");
         String email = leerTexto("Email: ");
         clientes.add(new Cliente(nombre, telefono, email));
-        System.out.println("✅ Cliente registrado.");
+        System.out.println("Cliente registrado.");
     }
 
     private static void registrarTecnico() {
@@ -92,10 +92,10 @@ public class MainMenu {
         String email = leerTexto("Email: ");
         String esp = leerTexto("Especialidad: ");
         tecnicos.add(new Tecnico(nombre, telefono, email, esp));
-        System.out.println("✅ Tecnico registrado.");
+        System.out.println("Tecnico registrado.");
     }
 
-    // ----------- TICKETS -----------
+    // TICKETS
 
     private static void crearTicket() {
         if (clientes.isEmpty()) throw new IllegalArgumentException("No hay clientes. Registre uno primero.");
@@ -112,7 +112,7 @@ public class MainMenu {
         String descripcion = leerTexto("Descripcion: ");
 
         Ticket t = ticketService.crearTicket(cliente, domicilio, tipoProblema, descripcion);
-        System.out.println("✅ Ticket creado. ID: " + t.getId());
+        System.out.println("Ticket creado. ID: " + t.getId());
     }
 
     private static void listarTickets() {
@@ -133,7 +133,7 @@ public class MainMenu {
         }
     }
 
-    // ----------- VISITAS -----------
+    // VISTAS
 
     private static void programarVisita() {
         Ticket t = seleccionarTicket();
@@ -141,7 +141,7 @@ public class MainMenu {
         String responsable = leerTexto("Responsable: ");
 
         VisitaTecnica v = ticketService.programarVisita(t.getId(), fecha, responsable);
-        System.out.println("✅ Visita programada. ID visita: " + v.getId());
+        System.out.println("Visita programada. ID visita: " + v.getId());
     }
 
     private static void agregarTecnicoAVisita() {
@@ -153,7 +153,7 @@ public class MainMenu {
         String responsable = leerTexto("Responsable: ");
 
         ticketService.agregarTecnicoAVisita(t.getId(), v.getId(), tecnico, responsable);
-        System.out.println("✅ Tecnico agregado. Ahora la visita tiene: " + v.getTecnicosAsignados().size() + " tecnico(s).");
+        System.out.println("Tecnico agregado. Ahora la visita tiene: " + v.getTecnicosAsignados().size() + " tecnico(s).");
     }
 
     private static void reagendarVisita() {
@@ -164,7 +164,7 @@ public class MainMenu {
         String responsable = leerTexto("Responsable: ");
 
         VisitaTecnica nueva = ticketService.reagendarVisita(t.getId(), v.getId(), nuevaFecha, motivo, responsable);
-        System.out.println("✅ Reagendada. Nueva visita ID: " + nueva.getId());
+        System.out.println("Reagendada. Nueva visita ID: " + nueva.getId());
     }
 
     private static void cancelarVisita() {
@@ -174,7 +174,7 @@ public class MainMenu {
         String responsable = leerTexto("Responsable: ");
 
         ticketService.cancelarVisita(t.getId(), v.getId(), motivo, responsable);
-        System.out.println("✅ Visita cancelada.");
+        System.out.println("Visita cancelada.");
     }
 
     private static void completarVisita() {
@@ -182,7 +182,7 @@ public class MainMenu {
         VisitaTecnica v = seleccionarVisita(t);
 
         if (v.getTecnicosAsignados().isEmpty()) {
-            System.out.println("⚠ Nota: esta visita no tiene tecnicos asignados. Igual se puede completar.");
+            System.out.println("Nota: esta visita no tiene tecnicos asignados. Igual se puede completar.");
         }
 
         String resultado = leerTexto("Resultado: ");
@@ -190,17 +190,17 @@ public class MainMenu {
         String responsable = leerTexto("Responsable: ");
 
         ticketService.completarVisita(t.getId(), v.getId(), resultado, ingreso, responsable);
-        System.out.println("✅ Visita completada.");
+        System.out.println("Visita completada.");
     }
 
     private static void cerrarTicket() {
         Ticket t = seleccionarTicket();
         String responsable = leerTexto("Responsable: ");
         ticketService.cerrarTicket(t.getId(), responsable);
-        System.out.println("✅ Ticket cerrado.");
+        System.out.println("Ticket cerrado.");
     }
 
-    // ----------- REPORTES -----------
+    //REPORTES
 
     private static void menuReportes() {
         var tickets = ticketService.listarTickets();
@@ -233,11 +233,11 @@ public class MainMenu {
                 double total = reporteService.ingresosEnRango(tickets, desde, hasta);
                 System.out.println("Ingreso total en rango: " + total);
             }
-            default -> System.out.println("Opción inválida.");
+            default -> System.out.println("Opción invalida.");
         }
     }
 
-    // ----------- SELECTORES -----------
+    //SELECTORES 
 
     private static Cliente seleccionarCliente() {
         System.out.println("Seleccione cliente:");
@@ -288,7 +288,7 @@ public class MainMenu {
         return visitas.get(idx);
     }
 
-    // ----------- INPUT HELPERS -----------
+    
 
     private static String leerTexto(String msg) {
         System.out.print(msg);

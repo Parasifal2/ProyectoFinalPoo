@@ -176,62 +176,13 @@ public VentanaPrincipal(proyectofinal.AppContext ctx) {
     
 public static void main(String[] args) {
 
-    var ticketService = new proyectofinal.TicketService();
-    var reporteService = new proyectofinal.ReporteService();
-    var clientes = new java.util.ArrayList<proyectofinal.Cliente>();
-    var tecnicos = new java.util.ArrayList<proyectofinal.Tecnico>();
+    // 1) Bootstrapping desde MySQL
+    var ctx = proyectofinal.Bootstrap.init();
 
-    // Semillas (Clientes)
-    var c1 = new proyectofinal.Cliente("Jaime Perez", "999-111-222", "jaime@email.com");
-    var c2 = new proyectofinal.Cliente("Maria Gonzales", "999-333-444", "maria@email.com");
-    clientes.add(c1);
-    clientes.add(c2);
-
-    // Semillas (Técnicos)
-    var t1 = new proyectofinal.Tecnico("Luis Soto", "888-222-333", "luis@company.com", "CTs / Gateway");
-    var t2 = new proyectofinal.Tecnico("Ana Ruiz", "888-444-555", "ana@company.com", "Inverters / Monitoring");
-    tecnicos.add(t1);
-    tecnicos.add(t2);
-
-    // Contexto
-    var ctx = new proyectofinal.AppContext(ticketService, reporteService, clientes, tecnicos);
-
-    // -------------------------------
-    // ✅ Semillas (Tickets)
-    // -------------------------------
-    var tk1 = ticketService.crearTicket(
-            c1,
-            new proyectofinal.Domicilio("Av. Primavera 123", "Trujillo", "Frente al parque"),
-            "Gateway/Envoy",
-            "El Envoy aparece offline desde ayer."
-    );
-
-    var tk2 = ticketService.crearTicket(
-            c2,
-            new proyectofinal.Domicilio("Jr. Los Girasoles 456", "Trujillo", "Casa azul"),
-            "Electrico",
-            "El sistema baja producción en horas pico."
-    );
-
-    // -------------------------------
-    // Semillas (Visitas)
-    // -------------------------------
-    var visita1 = ticketService.programarVisita(
-            tk1.getId(),
-            java.time.LocalDateTime.now().plusDays(1),
-            "Sistema"
-    );
-
-    ticketService.agregarTecnicoAVisita(
-            tk1.getId(),
-            visita1.getId(),
-            t1,
-            "Sistema"
-    );
-
-    // Arranque UI
+    // 2) Arranque UI
     java.awt.EventQueue.invokeLater(() -> new proyectofinal.igu.VentanaPrincipal(ctx).setVisible(true));
 }
+
 
 
    

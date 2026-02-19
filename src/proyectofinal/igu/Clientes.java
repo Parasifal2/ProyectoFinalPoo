@@ -27,7 +27,7 @@ public class Clientes extends javax.swing.JFrame {
 
         configurarTabla();
         configurarEventos();
-        cargarTablaClientes(); // ahora sí carga clientes
+        cargarTablaClientes(); // Cargando Clientes
     }
  
     //COnfigurar nuestra tabla 
@@ -42,7 +42,7 @@ public class Clientes extends javax.swing.JFrame {
     };
     tblClientes.setModel(modeloClientes);
 }
-    //Cargar la tabla de clientes que tenemos ya lista en modo semilla Y Tambien los que vayamos creando por el camino
+    //Cargar la tabla
     private void cargarTablaClientes() {
         if (modeloClientes == null) return;
 
@@ -59,7 +59,7 @@ public class Clientes extends javax.swing.JFrame {
         });
     }
 }
-    //Tabla para que una vez que agreguemos el formulario de borre
+    //Limpiar todo el texto
     private void limpiarFormulario() {
         idSeleccionado = null;
         txtNombreClientes.setText("");
@@ -68,7 +68,7 @@ public class Clientes extends javax.swing.JFrame {
         tblClientes.clearSelection();
         txtNombreClientes.requestFocus();
 }
-    //Aqui se utiliza clases anonimas
+    //Clases anonimas
     private proyectofinal.Cliente buscarClientePorId(String id) {
         if (ctx == null || ctx.clientes == null) return null;
         for (proyectofinal.Cliente c : ctx.clientes) {
@@ -312,8 +312,7 @@ public class Clientes extends javax.swing.JFrame {
     }//GEN-LAST:event_txtNombreClientesActionPerformed
 
     private void btnGuardarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarClientesActionPerformed
-        // TODO add your handling code here:
-        if (ctx == null) {
+      if (ctx == null) {
         JOptionPane.showMessageDialog(this, "CTX no inicializado. Abra desde el menú principal.");
         return;
     }
@@ -322,17 +321,30 @@ public class Clientes extends javax.swing.JFrame {
     String tel = txtTelefonoClientes.getText().trim();
     String email = txtEmailClientes.getText().trim();
 
-        if (nombre.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nombre no puede estar vacío.");
-            return;
+    if (nombre.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Nombre no puede estar vacío.");
+        return;
     }
 
+    try {
+        // 1) Crear objeto
         proyectofinal.Cliente c = new proyectofinal.Cliente(nombre, tel, email);
-        ctx.clientes.add(c);
 
-    cargarTablaClientes();
-    limpiarFormulario();
-    JOptionPane.showMessageDialog(this, "Cliente guardado."); //Una interfaz locasa de popup para confirmar los cambios :v
+        // 2) ✅ Guardar en MySQL
+        ctx.personaRepo.upsertCliente(c);
+
+        // 3) Recargar lista desde BD para que la tabla quede sincronizada
+        ctx.clientes.clear();
+        ctx.clientes.addAll(ctx.personaRepo.listarClientes());
+
+        cargarTablaClientes();
+        limpiarFormulario();
+        JOptionPane.showMessageDialog(this, "Cliente guardado en la base de datos.");
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error guardando cliente: " + ex.getMessage());
+        ex.printStackTrace();
+    }
     }//GEN-LAST:event_btnGuardarClientesActionPerformed
 
     private void btnActualizarClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActualizarClientesActionPerformed

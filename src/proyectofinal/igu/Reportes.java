@@ -104,9 +104,7 @@ private void refrescarTodo() {
     calcularIngresos(); // opcional: para que no quede en blanco
 }
 
-/* =======================
-   TAB 1: TOTALES
-   ======================= */
+/* Totales */
 private void cargarTotales() {
     var tickets = ctx.ticketService.listarTickets();
 
@@ -124,9 +122,7 @@ private void cargarTotales() {
     lblCerradosReportes.setText(String.valueOf(cerrados));
 }
 
-/* =======================
-   TAB 2: REAGENDADOS
-   ======================= */
+/* Reagendados */
 private void cargarReagendados() {
     if (ctx == null) return;
 
@@ -149,7 +145,7 @@ private void aplicarFiltroReagendados() {
     String q = txtBuscarReagendadosReportes.getText() == null ? "" : txtBuscarReagendadosReportes.getText().trim().toLowerCase();
     boolean soloMayor0 = checkSoloReagendadosReportes.isSelected();
 
-    // Re-cargar desde fuente real para aplicar filtro limpio:
+    // Recargar todo:
     modeloReagendados.setRowCount(0);
 
     var tickets = ctx.ticketService.listarTickets();
@@ -169,9 +165,7 @@ private void aplicarFiltroReagendados() {
     }
 }
 
-/* =======================
-   TAB 3: CANCELACIONES
-   ======================= */
+/* Cancelaciones */
 private void cargarCancelaciones() {
     if (ctx == null) return;
 
@@ -180,15 +174,13 @@ private void cargarCancelaciones() {
     var tickets = ctx.ticketService.listarTickets();
     Map<String, Long> map = ctx.reporteService.cancelacionesPorMotivo(tickets);
 
-    // ordena por cantidad desc (bonito)
+    // ordena por cantidad desc
     map.entrySet().stream()
             .sorted((a,b) -> Long.compare(b.getValue(), a.getValue()))
             .forEach(e -> modeloCancelaciones.addRow(new Object[]{ e.getKey(), e.getValue() }));
 }
 
-/* =======================
-   TAB 4: INGRESOS
-   ======================= */
+/* Ingresos */
 private void calcularIngresos() {
     if (ctx == null) return;
 
@@ -210,7 +202,7 @@ private void calcularIngresos() {
     var filas = ctx.reporteService.detalleIngresosEnRango(tickets, desde, hasta);
 
     for (Object[] row : filas) {
-        // row[0] es LocalDateTime (según el método)
+        // LocalDateTime
         LocalDateTime f = (LocalDateTime) row[0];
         row[0] = (f == null) ? "" : f.format(fmtFechaHora);
         modeloIngresos.addRow(row);
@@ -750,9 +742,7 @@ private LocalDate leerFechaSpinnerComoLocalDate(JSpinner spn) {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * @param args the command line arguments
-     */
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

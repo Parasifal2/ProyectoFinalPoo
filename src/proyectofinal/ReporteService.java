@@ -79,7 +79,7 @@ public class ReporteService {
                             .collect(java.util.stream.Collectors.joining(", "));
 
                 return new Object[]{
-                        v.getFechaProgramada(),     // luego lo formateas en la UI
+                        v.getFechaProgramada(),     
                         t.getId(),
                         t.getCliente().getNombre(),
                         v.getIngresoGenerado(),

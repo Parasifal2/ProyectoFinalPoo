@@ -55,7 +55,7 @@ private void configurarListaTecnicosAsignados() {
 
 private void configurarEventos() {
 
-    // SOLO UN listener para el combo
+    // Listener
     cboSeleccionarTicketVisitas.addActionListener(e -> cargarTicketSeleccionado());
 
     // click en tabla = selecciona visita

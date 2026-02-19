@@ -15,6 +15,8 @@ public abstract class Persona {
     private String nombre;
     private String telefono;
     private String email;
+    
+    
 
     protected Persona(String nombre, String telefono, String email) {
         this.id = UUID.randomUUID().toString();
@@ -32,4 +34,29 @@ public abstract class Persona {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    
+    protected Persona(String id, String nombre, String telefono, String email) {
+    this.id = id;
+    this.nombre = nombre;
+    this.telefono = telefono;
+    this.email = email;
 }
+
+// IMPORTANTISIMO para que List.contains() funcione por id (VisitaTecnica.tecnicosAsignados)
+@Override
+public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Persona)) return false;
+    Persona p = (Persona) o;
+    return id.equals(p.id);
+}
+
+@Override
+public int hashCode() {
+    return id.hashCode();
+}
+
+
+
+}
+

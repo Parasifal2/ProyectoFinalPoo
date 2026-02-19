@@ -59,4 +59,16 @@ public class VisitaTecnica {
         return "Visita{id=" + id + ", fecha=" + fechaProgramada + ", estado=" + estado +
                 ", tecnicos=" + tecnicosAsignados.size() + "}";
     }
+    
+    public VisitaTecnica(String id, LocalDateTime fechaProgramada, EstadoVisita estado,
+                     String resultado, String motivoReag, String motivoCanc, double ingreso) {
+    this.id = id;
+    this.fechaProgramada = fechaProgramada;
+    this.estado = estado;
+    this.resultado = resultado;
+    this.motivoReagendamiento = motivoReag;
+    this.motivoCancelacion = motivoCanc;
+    this.ingresoGenerado = ingreso;
+}
+
 }

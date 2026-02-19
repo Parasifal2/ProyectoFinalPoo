@@ -4,10 +4,6 @@
  */
 package proyectofinal;
 
-/**
- *
- * @author Carlo Clases
- */
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -36,4 +32,13 @@ public class EventoTicket {
     public String toString() {
         return "[" + fecha + "] " + tipo + " - " + descripcion + " (" + responsable + ")";
     }
+    
+    public EventoTicket(String id, LocalDateTime fecha, TipoEvento tipo, String descripcion, String responsable) {
+    this.id = id;
+    this.fecha = fecha;
+    this.tipo = tipo;
+    this.descripcion = descripcion;
+    this.responsable = responsable;
+}
+
 }

@@ -4,10 +4,6 @@
  */
 package proyectofinal;
 
-/**
- *
- * @author Carlo Clases
- */
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +13,14 @@ public class Ticket {
     private final String id;
     private final LocalDateTime fechaCreacion;
 
-    private final Cliente cliente;       // 1
-    private final Domicilio domicilio;   // 1
+    private final Cliente cliente;       
+    private final Domicilio domicilio;   
 
     private String tipoProblema;
     private String descripcion;
     private EstadoTicket estado;
 
-    // Composición: el Ticket "posee" visitas y eventos
+    // Composición: el Ticket tiene visitas y eventos
     private final List<VisitaTecnica> visitas = new ArrayList<>();
     private final List<EventoTicket> eventos = new ArrayList<>();
 
@@ -113,4 +109,17 @@ public class Ticket {
     public String toString() {
         return "Ticket{id=" + id + ", estado=" + estado + ", cliente=" + cliente.getNombre() + "}";
     }
+    
+    public Ticket(String id, LocalDateTime fechaCreacion, Cliente cliente, Domicilio domicilio,
+              String tipoProblema, String descripcion, EstadoTicket estado) {
+    this.id = id;
+    this.fechaCreacion = fechaCreacion;
+    this.cliente = cliente;
+    this.domicilio = domicilio;
+    this.tipoProblema = tipoProblema;
+    this.descripcion = descripcion;
+    this.estado = estado;
+    
+}
+
 }

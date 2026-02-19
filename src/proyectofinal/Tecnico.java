@@ -23,4 +23,10 @@ public class Tecnico extends Persona {
     public String toString() {
         return "Tecnico{id=" + getId() + ", nombre=" + getNombre() + ", esp=" + especialidad + "}";
     }
+    
+    public Tecnico(String id, String nombre, String telefono, String email, String especialidad) {
+    super(id, nombre, telefono, email);
+    this.especialidad = especialidad;
+}
+
 }
