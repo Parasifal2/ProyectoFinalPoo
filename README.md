@@ -1,2 +1,2 @@
 # ProyectoFinalPoo
-Proyecto final del el curso de POO
+Proyecto final del el curso de POO.
